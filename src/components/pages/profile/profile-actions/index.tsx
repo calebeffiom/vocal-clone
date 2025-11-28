@@ -15,7 +15,7 @@ const ProfileActions = ()=>{
                                     </button>
                                 </div>
 
-                                <div className="mt-6 bg-gray-50 rounded-lg shadow-lg pt-6 px-6">
+                                {/* <div className="mt-6 bg-gray-50 rounded-lg shadow-lg pt-6 px-6">
                                     <h3 className="font-medium text-gray-800 mb-2">Writing Stats</h3>
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-center">
@@ -36,7 +36,7 @@ const ProfileActions = ()=>{
                                             <span className="w-[100%] flex items-center justify-between">View More stats <ChevronDown className="text-[20px]" /></span>
                                         </button>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
     )
 }
