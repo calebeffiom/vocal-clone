@@ -11,10 +11,6 @@
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.1",
     "@next-auth/mongodb-adapter": "^1.1.3",
-<<<<<<< HEAD
-=======
-    "list": "^2.0.19",
->>>>>>> dd1b2d0 (updated)
     "lucide-react": "^0.553.0",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.0",
