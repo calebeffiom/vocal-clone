@@ -1,7 +1,8 @@
 "use client"
-import { useRef, useState, ChangeEvent, useCallback } from "react";
+import { useRef, useState, ChangeEvent, useCallback, TextareaHTMLAttributes } from "react";
 import {Container} from "@shared";
 import { Plus, X, Image as ImageIcon, Upload } from "lucide-react";
+import axios from "axios";
 
 /**
  * Defines the structure for the story text state.
@@ -11,6 +12,7 @@ interface TextState {
     subtitle: string;
     paragraphs: string[];
     coverImage: string | null;
+    tags: string[]
 }
 
 const CreateStory = ()=> {
@@ -18,12 +20,13 @@ const CreateStory = ()=> {
         title: "",
         subtitle: "",
         paragraphs: [""],
-        coverImage: null
+        coverImage: null,
+        tags: [""]
     });
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const paragraphRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
-    
+    const [formError, setFormError] = useState<string | "">("")
     // Refs for title and subtitle
     const titleRef = useRef<HTMLTextAreaElement>(null);
     const subtitleRef = useRef<HTMLTextAreaElement>(null);
@@ -129,6 +132,35 @@ const CreateStory = ()=> {
     const triggerImageUpload = () => {
         fileInputRef.current?.click();
     };
+
+    const handleTagsChange = (e: ChangeEvent<HTMLTextAreaElement>)=>{
+        const {value, name} = e.target
+        const tags = value.trim()
+        .replace(/\s+/g, " ")
+        .split(/[,\s]+/)
+        .filter(Boolean);
+        setText((prev)=>({
+            ...prev,
+            [name]: tags
+        }))
+    }
+
+
+    const publishBlog= async ()=>{
+        
+        if (text.title === "") setFormError("Title is required");
+        if (text.subtitle === "") setFormError("Subtitle is required");
+        if (text.coverImage === null) setFormError("Cover image is required");
+        if (text.paragraphs.length <= 1) setFormError("Add at least two paragraph");
+        if (text.tags.length < 1) setFormError("Add at least one tag");
+        console.log(formError)
+        try {
+            const req = await axios.post("/api/publish-blog",text)
+            console.log(req.data.message)
+        } catch (error) {
+            console.log(error)
+        }
+    }
     
     return (
         <section className="min-h-screen">
@@ -249,13 +281,23 @@ const CreateStory = ()=> {
                                 </div>
                             ))}
                         </div>
+
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 transition-all duration-300">
+                        <textarea
+                            name="tags"
+                            value={text.tags}
+                            onChange={handleTagsChange}
+                            placeholder="Include post tags here"
+                            className="w-full max-h-40 resize-none overflow-hidden px-4 py-3 outline-none focus:ring-0 transition duration-150"
+                            />
+                        </div>
                         
                         {/* Action Buttons */}
                         <div className="flex justify-end space-x-4 pt-6">
                             <button className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition duration-200 ease-in-out">
                                 Save Draft
                             </button>
-                            <button className="px-6 py-3 bg-[#2E2E2E] text-white rounded-xl font-semibold shadow-md hover:bg-gray-800 transition duration-200 ease-in-out">
+                            <button className="px-6 py-3 bg-[#2E2E2E] text-white rounded-xl font-semibold shadow-md transition duration-200 ease-in-out" onClick={publishBlog}>
                                 Publish
                             </button>
                         </div>

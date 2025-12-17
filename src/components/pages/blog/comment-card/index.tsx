@@ -29,8 +29,8 @@ export default function CommentCard() {
           </div>
 
           {/* Comment Bubble */}
-          <div className="mt-4 rounded-xl bg-white/60 p-4 text-gray-800">
-            <p className="leading-relaxed text-gray-500/80">
+          <div className="mt-4 rounded-xl bg-white p-4 text-gray-800">
+            <p className="leading-relaxed text-gray-500">
               Oh this is so damn good. Never ever apologise! I've been through being fat and I've been through being unhealthily thin and I'm more just thin‑to‑average now and it's a wonder how different people treat you when you fit into societal beauty standards. It's honestly pathetic. I love the battle cry of this poem, one of the best I've read in a while...
             </p>
 

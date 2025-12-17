@@ -5,7 +5,7 @@ interface type{
 }
 const Container = ({ children }: type) =>{
     return(
-        <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[85%] mx-auto px-4 sm:px-6 lg:px-8">
             {children}
         </div>
     )
