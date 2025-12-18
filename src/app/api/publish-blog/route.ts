@@ -2,13 +2,22 @@ import { NextResponse, NextRequest } from "next/server";
 import { connectToMongo } from "@/lib/mongoDB";
 import Blog from "@/models/blog-model"
 import mongoose from "mongoose";
+import cloudinary from "@/lib/cloudinaryConfig";
 // import { Collection } from "mongodb";
 export async function POST(req: NextRequest){
     const res = NextResponse;
 
     const reqBody = await req.json()
+    const {title, subtitle, paragraphs, coverImage, tags} = reqBody
 
   try {
+
+    const uploadedImage = await cloudinary.uploader.upload(coverImage,
+      {
+        folder: "blog-images",
+      }
+    )
+    console.log(uploadedImage)
     return res.json(
       {message: "sent"},
       { status: 201 },
