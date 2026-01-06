@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { signIn, useSession } from "next-auth/react"
+import { useRouter } from 'next/navigation'
 
 
 
@@ -15,11 +16,16 @@ import { signIn, useSession } from "next-auth/react"
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState<Boolean>(false)
   const { data: session, status } = useSession();
-  const handleSignIn = () => {
-    setIsLoading(true)
-    signIn("google", {
-      callbackUrl: "/latest-stories",
-    })
+  const router = useRouter()
+  const handleSignIn = async () => {
+    try {
+      setIsLoading(true)
+      await signIn('google', {
+        callbackUrl: '/latest-stories',
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
 
