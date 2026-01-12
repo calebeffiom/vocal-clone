@@ -13,11 +13,19 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.CLIENT_ID || "",
             clientSecret: process.env.CLIENT_SECRET || "",
+            allowDangerousEmailAccountLinking: true,
         }),
     ],
     // 3. Customize Callbacks to get the MongoDB User ID
     // 3. Customize Callbacks
     callbacks: {
+        async redirect({ url, baseUrl }) {
+            // Allow relative callback URLs
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
+            // Allow callback URLs on the same origin
+            if (new URL(url).origin === baseUrl) return url;
+            return baseUrl;
+        },
         async signIn({ user, account, profile }) {
             console.log("DEBUG: signIn callback", { email: user.email, provider: account?.provider });
             // Sync OAuth user with custom Users collection
