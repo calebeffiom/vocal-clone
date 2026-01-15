@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import cloudinary from "@/lib/cloudinaryConfig";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
-import { generateSlug, getAllBlogs } from "@/utils/helpers";
+import { formatRelativeTime, generateSlug, getAllBlogs } from "@/utils/helpers";
 // import { Collection } from "mongodb";
 export async function POST(req: NextRequest) {
   const res = NextResponse;
@@ -82,7 +82,31 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   try {
     const blogs = await getAllBlogs();
-    return NextResponse.json({ blogs }, { status: 200 });
+    console.log(blogs)
+    const formatBlogs = blogs.map((blog: any) => ({
+      id: blog._id.toString(),
+      title: blog.title,
+      subtitle: blog.subtitle,
+      content: blog.content,
+      coverImage: blog.coverImage,
+      slug: blog.slug,
+      tags: blog.tags,
+      published: blog.published,
+      likes: blog.likes,
+      comments: blog.comments,
+      author: {
+        id: blog.author._id.toString(),
+        name: blog.author.name,
+        username: blog.author.username,
+        image: blog.author.image,
+        bio: blog.author.bio
+      },
+
+      createdAt: formatRelativeTime(blog.createdAt.toISOString()),
+      updatedAt: blog.updatedAt.toISOString(),
+    }))
+
+    return NextResponse.json({ formatBlogs }, { status: 200 });
   } catch (error) {
     console.error("Error in GET /api/publish-blog:", error);
     return NextResponse.json(

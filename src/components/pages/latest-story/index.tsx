@@ -12,8 +12,8 @@ const LatestStoriesSection = () => {
     const fetchBlogs = useCallback(async () => {
         try {
             const res = await axios.get("/api/publish-blog");
-            if (res.data.blogs) {
-                setBlogs(res.data.blogs);
+            if (res.data.formatBlogs) {
+                setBlogs(res.data.formatBlogs);
             }
         } catch (error) {
             console.error("Error fetching blogs:", error);
@@ -36,14 +36,15 @@ const LatestStoriesSection = () => {
                         {blogs && blogs.length > 0 ? (
                             blogs.map((blog: any) => (
                                 <ArticlePreview
-                                    key={blog._id}
+                                    key={blog.id}
                                     previewImage={blog.coverImage || "/images/ice.jpeg"}
                                     heading={blog.title}
                                     description={blog.subtitle || blog.content[0]}
-                                    profileImage="/images/profile.png"
-                                    userName="sara burdick"
-                                    postTime="a day ago"
+                                    profileImage={blog.author.image || "/images/profile.png"}
+                                    userName={blog.author.name}
+                                    postTime={blog.createdAt}
                                     catergory={blog.tags[0] || "Horror"}
+                                    slug={blog.slug}
                                 />
                             ))
                         ) : (

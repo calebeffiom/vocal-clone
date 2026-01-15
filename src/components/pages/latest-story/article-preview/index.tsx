@@ -7,9 +7,8 @@ interface types {
     profileImage: string,
     userName: string,
     postTime: string,
-    catergory: string
-
-
+    catergory: string,
+    slug: string
 }
 const ArticlePreview = ({
     previewImage,
@@ -18,12 +17,13 @@ const ArticlePreview = ({
     profileImage,
     userName,
     postTime,
-    catergory
+    catergory,
+    slug
 }: types) => {
     const router = useRouter()
     return (
-        <div className="story-flex-cont h-[450px] relative" onClick={() => {
-            router.push("/blog")
+        <div className="story-flex-cont h-[450px] relative cursor-pointer" onClick={() => {
+            router.push(`/blog/${slug}`)
         }}>
             <img src={previewImage} className="rounded-[10px] mb-[15px] w-[100%] h-[200px]" alt="" />
             <h2 className="text-[25px] mb-[15px] line-clamp-2">{heading}</h2>
@@ -33,7 +33,7 @@ const ArticlePreview = ({
 
 
                     <div className="writer-image-cont">
-                        <img src={profileImage} className="h-[50px]" alt="" />
+                        <img src={profileImage} className="h-[50px] rounded-full" alt="" />
                     </div>
 
 

@@ -1,143 +1,107 @@
+"use client"
 import { Container } from "@shared"
 import CommentCard from "./comment-card"
-import { Heart, MessageCircle, Forward, Share, ForwardIcon, Share2, } from "lucide-react"
+import { Heart, MessageCircle, Share2 } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import axios from "axios"
 
-const BlogPage = () => {
+interface BlogPageProps {
+    slug: string
+}
+
+const BlogPage = ({ slug }: BlogPageProps) => {
+    const [blog, setBlog] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    const fetchBlog = useCallback(async () => {
+        try {
+            const res = await axios.get(`/api/blogs/${slug}`);
+            if (res.data.formatBlog) {
+                setBlog(res.data.formatBlog);
+            }
+        } catch (error) {
+            console.error("Error fetching blog:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [slug]);
+
+    useEffect(() => {
+        if (slug) {
+            fetchBlog();
+        }
+    }, [slug, fetchBlog]);
+
+    if (loading) {
+        return (
+            <Container>
+                <div className="py-20 text-center text-xl">Loading...</div>
+            </Container>
+        );
+    }
+
+    if (!blog) {
+        return (
+            <Container>
+                <div className="py-20 text-center text-xl">Blog not found.</div>
+            </Container>
+        );
+    }
+
     return (
         <section>
-
             <div className="flex flex-col gap-11 py-[100px]">
                 <Container>
                     <div className="flex flex-col gap-3 w-fit mx-auto">
                         <div className="flex flex-col gap-1">
-                            <h1 className="text-[50px] font-bold">Accepting Limits</h1>
-                            <h2 className="text-[25px] font-medium text-[#8f8f8f]">Something That Many (Including Myself) Struggle With.</h2>
+                            <h1 className="text-[50px] font-bold">{blog.title}</h1>
+                            {blog.subtitle && (
+                                <h2 className="text-[25px] font-medium text-[#8f8f8f]">{blog.subtitle}</h2>
+                            )}
                         </div>
 
                         <div className="flex flex-row gap-2">
                             <div className="writer-image-cont">
-                                <img src="/images/profile.png" className="h-[50px]" alt="" />
+                                <img src={blog.author.image || "/images/profile.png"} className="h-[50px] rounded-full" alt={blog.author.name} />
                             </div>
-
 
                             <div className="flex flex-col gap-1">
-                                <h4>Caleb</h4>
-                                <p className="text-[#8f8f8f] text-[13px]">published 7 days ago • 3 min read </p>
+                                <h4>{blog.author.name}</h4>
+                                <p className="text-[#8f8f8f] text-[13px]">published {blog.createdAt} • 3 min read </p>
                             </div>
                         </div>
-
                     </div>
                 </Container>
-                
+
                 <div className="w-[85%] h-[650px] mx-auto px-4 sm:px-6 lg:px-8">
-                    <img src="/images/ice.jpeg" className="h-full w-full rounded-xl" alt="" />
+                    <img src={blog.coverImage || "/images/ice.jpeg"} className="h-full w-full rounded-xl object-cover" alt="Blog Cover" />
                 </div>
-                
+
 
                 <Container>
                     <div className="flex flex-col gap-8 w-[80%] mx-auto">
                         <div className="flex flex-col gap-8 mx-auto">
-                            <p className="text-xl font-normal leading-loose">Many of us are told...
-
-                                We can be anything that we want to be...
-
-                                If you can dream it, you can do it...
-
-                                The sky is the limit.
-
-                                Now, I'm not here to try to rain on your parade...
-
-                                I have no intention of telling you that you cannot pursue the dreams you have.
-
-                                But here's the thing...
-
-                                You cannot do everything.
-
-                                Not all at once.
-
-                                As Humans, we have real Limitations that we must work around.
-
-                                Time.
-
-                                Resources.
-
-                                Energy.
-
-                            </p>
-
-                            <p className="text-xl font-normal leading-loose">Yes, we may have goals we want to attain.
-
-                                It is possible that all of those goals are things we are capable of accomplishing.
-
-                                But sometimes, our limitations impose real challenges on the timeframes that we may want to attain those goals in.
-
-                                I know that this is one that I struggle with myself.
-
-                                I have many goals in my life, and I truly believe that all of those goals are within my capabilities.
-
-                                But most of these goals are not small goals.
-
-                                Some of them are gigantic goals.
-
-                                Impactful goals.
-
-                                But they are also goals that will require resources, time, energy, and some dedicated training.</p>
-
-
-
-                            <p className="text-xl font-normal leading-loose">Yes, we may have goals we want to attain.
-
-                                It is possible that all of those goals are things we are capable of accomplishing.
-
-                                But sometimes, our limitations impose real challenges on the timeframes that we may want to attain those goals in.
-
-                                I know that this is one that I struggle with myself.
-
-                                I have many goals in my life, and I truly believe that all of those goals are within my capabilities.
-
-                                But most of these goals are not small goals.
-
-                                Some of them are gigantic goals.
-
-                                Impactful goals.
-
-                                But they are also goals that will require resources, time, energy, and some dedicated training.</p>
-
-
-
-                            <p className="text-xl font-normal leading-loose">Yes, we may have goals we want to attain.
-
-                                It is possible that all of those goals are things we are capable of accomplishing.
-
-                                But sometimes, our limitations impose real challenges on the timeframes that we may want to attain those goals in.
-
-                                I know that this is one that I struggle with myself.
-
-                                I have many goals in my life, and I truly believe that all of those goals are within my capabilities.
-
-                                But most of these goals are not small goals.
-
-                                Some of them are gigantic goals.
-
-                                Impactful goals.
-
-                                But they are also goals that will require resources, time, energy, and some dedicated training.</p>
+                            {blog.content.map((para: string, index: number) => (
+                                <p key={index} className="text-xl font-normal leading-loose text-gray-800">
+                                    {para}
+                                </p>
+                            ))}
                         </div>
 
                         <div className="w-full">
                             <div className="p-4 border-t-[2px] border-b-[2px] border-[#8f8f8f] flex justify-between  mx-auto">
                                 <div className="flex gap-4">
-                                    <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10">
+                                    <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10 cursor-pointer">
                                         <MessageCircle />
-                                        0
+                                        {blog.comments?.length || 0}
                                     </span>
-                                    <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10">
+                                    <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10 cursor-pointer">
                                         <Heart />
-                                        0
+                                        {blog.likes || 0}
                                     </span>
                                 </div>
                                 <div className="flex gap-4">
-                                <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10">
+                                    <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10 cursor-pointer">
                                         <Share2 />
                                     </span>
                                 </div>
@@ -145,8 +109,14 @@ const BlogPage = () => {
                         </div>
 
                         <div className="flex flex-col gap-10">
-                        <CommentCard />
-                        <CommentCard />
+                            {/* Comments would go here */}
+                            {blog.comments && blog.comments.length > 0 ? (
+                                blog.comments.map((comment: any, index: number) => (
+                                    <CommentCard key={index} comment={comment} />
+                                ))
+                            ) : (
+                                <p className="text-center text-gray-500">No comments yet.</p>
+                            )}
                         </div>
                     </div>
                 </Container>

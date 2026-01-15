@@ -48,4 +48,4 @@ UserSchema.virtual("blogsCount").get(function (this: IUser) {
   return this.blogsWritten ? this.blogsWritten.length : 0;
 });
 
-export default models.Users || model("Users", UserSchema);
+export default models.User || model("User", UserSchema);
