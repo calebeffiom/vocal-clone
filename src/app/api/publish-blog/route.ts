@@ -6,75 +6,99 @@ import cloudinary from "@/lib/cloudinaryConfig";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { formatRelativeTime, generateSlug, getAllBlogs } from "@/utils/helpers";
+import User from "@/models/user-model";
 // import { Collection } from "mongodb";
 export async function POST(req: NextRequest) {
-  const res = NextResponse;
+  const res = NextResponse
+
+  let mongoSession: mongoose.ClientSession | null = null
+
   try {
     const reqBody = await req.json()
     const { title, subtitle, paragraphs, coverImage, tags } = reqBody
+
     const session = await getServerSession(authOptions)
 
-    // check if the user is logged In
+    // 1️⃣ Auth check
     if (!session || !session.user) {
       return res.json(
         { message: "Unauthorized: You must be logged in to post." },
         { status: 401 }
       )
     }
-    // Check if all the fields have been added
+
+    // 2️⃣ Validation
     if (!title || !subtitle || !paragraphs || !coverImage || !tags) {
       return res.json(
-        { message: "bad request" },
+        { message: "Bad request" },
         { status: 400 }
       )
     }
 
-    // connect to mongo DB
+    // 3️⃣ Connect to Mongo
     await connectToMongo()
 
-    // upload to cloudinary
-    const uploadedImage = await cloudinary.uploader.upload(coverImage,
-      {
-        folder: "blog-images",
-      }
-    )
-
-
-
-
+    // 4️⃣ Upload image (OUTSIDE transaction)
+    const uploadedImage = await cloudinary.uploader.upload(coverImage, {
+      folder: "blog-images",
+    })
 
     const slug = generateSlug(title)
+    // 5️⃣ Start transaction
+    mongoSession = await mongoose.startSession()
+    mongoSession.startTransaction()
 
+    // 6️⃣ Create blog
+    const [blog] = await Blog.create(
+      [
+        {
+          author: session.user.id,
+          title,
+          subtitle,
+          content: paragraphs,
+          coverImage: uploadedImage.secure_url,
+          slug,
+          tags,
+          published: true,
+        },
+      ],
+      { session: mongoSession }
+    )
 
+    // 7️⃣ Update author
+    await User.findByIdAndUpdate(
+      session.user.id,
+      { $push: { blogsWritten: blog._id } },
+      { session: mongoSession }
+    )
 
-
-    const post = {
-      author: session.user.id,
-      title: title,
-      subtitle: subtitle,
-      content: paragraphs,
-      coverImage: uploadedImage.secure_url,
-      slug: slug,
-      tags: tags,
-      published: true,
-    }
-    const result = await Blog.create(post)
-
-
+    // 8️⃣ Commit
+    await mongoSession.commitTransaction()
 
     return res.json(
-      { message: "blog posted" },
-      { status: 201 },
+      { message: "Blog posted successfully" },
+      { status: 201 }
+    )
 
-    );
   } catch (error) {
-    console.error("Error creating blog:", error);
-    return res.json(
+    // 9️⃣ Rollback if anything fails
+    if (mongoSession) {
+      await mongoSession.abortTransaction()
+    }
+
+    console.error("Error creating blog:", error)
+
+    return NextResponse.json(
       { error: "Server error" },
       { status: 500 }
-    );
-  }
+    )
 
+  } finally {
+    // 🔚 Always clean up
+    if (mongoSession) {
+      mongoSession.endSession()
+    }
+  }
 }
 
 
@@ -82,7 +106,6 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   try {
     const blogs = await getAllBlogs();
-    console.log(blogs)
     const formatBlogs = blogs.map((blog: any) => ({
       id: blog._id.toString(),
       title: blog.title,

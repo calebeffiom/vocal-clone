@@ -1,5 +1,6 @@
 import { connectToMongo } from "@/lib/mongoDB";
 import Blog from "@/models/blog-model";
+import User from "@/models/user-model";
 
 const generateSlug = (str: string) => {
     return str
@@ -77,4 +78,27 @@ const getBlogBySlug = async (slug: string) => {
     }
 }
 
-export { generateSlug, getAllBlogs, formatRelativeTime, getBlogBySlug }
+const getUserById = async (id: string) => {
+    try {
+        await connectToMongo()
+        const user = await User.findById(id)
+            .populate({
+                path: 'blogsWritten',
+                options: { sort: { createdAt: -1 } }
+            })
+            .lean()
+        return user
+    } catch (error) {
+        console.error('Error fetching user', error)
+        throw error
+    }
+}
+
+const formatMonthYear = (dateString: string | Date) => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Invalid Date";
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+};
+
+export { generateSlug, getAllBlogs, formatRelativeTime, getBlogBySlug, getUserById, formatMonthYear }

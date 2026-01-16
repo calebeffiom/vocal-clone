@@ -39,7 +39,7 @@ const LatestStoriesSection = () => {
                                     key={blog.id}
                                     previewImage={blog.coverImage || "/images/ice.jpeg"}
                                     heading={blog.title}
-                                    description={blog.subtitle || blog.content[0]}
+                                    description={blog.content[0]}
                                     profileImage={blog.author.image || "/images/profile.png"}
                                     userName={blog.author.name}
                                     postTime={blog.createdAt}
