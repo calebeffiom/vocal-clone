@@ -64,6 +64,25 @@ const BlogPage = ({ slug }: BlogPageProps) => {
         }
     };
 
+
+    const share = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: "Check this out",
+                    text: "Read this blog post",
+                    url: window.location.href,
+                });
+            } catch (err) {
+                console.error("Share cancelled or failed", err);
+            }
+        } else {
+            // Fallback
+            navigator.clipboard.writeText(window.location.href);
+            alert("Link copied instead");
+        }
+    };
+
     if (loading) {
         return (
             <Container>
@@ -139,7 +158,7 @@ const BlogPage = ({ slug }: BlogPageProps) => {
                                     </span>
                                 </div>
                                 <div className="flex gap-4">
-                                    <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10 cursor-pointer">
+                                    <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10 cursor-pointer" onClick={share}>
                                         <Share2 />
                                     </span>
                                 </div>
