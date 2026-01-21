@@ -4,6 +4,7 @@ import CommentCard from "./comment-card"
 import CommentForm from "./comment-form"
 import { Heart, MessageCircle, Share2 } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
+
 import axios from "axios"
 
 interface BlogPageProps {
@@ -15,7 +16,6 @@ const BlogPage = ({ slug }: BlogPageProps) => {
     const [loading, setLoading] = useState(true);
     const [showComments, setShowComments] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const fetchBlog = useCallback(async () => {
         try {
             const res = await axios.get(`/api/blogs/${slug}`);
@@ -35,6 +35,18 @@ const BlogPage = ({ slug }: BlogPageProps) => {
         }
     }, [slug, fetchBlog]);
 
+    const handleLike = async () => {
+        try {
+            if (blog.hasLiked) {
+                await axios.delete(`/api/blogs/${slug}/blog-actions`);
+            } else {
+                await axios.put(`/api/blogs/${slug}/blog-actions`);
+            }
+            await fetchBlog();
+        } catch (error) {
+            console.error("Error toggling like:", error);
+        }
+    };
 
     const handleCommentSubmit = async (content: string) => {
         setIsSubmitting(true);
@@ -118,8 +130,11 @@ const BlogPage = ({ slug }: BlogPageProps) => {
                                         <MessageCircle />
                                         {blog.comments?.length || 0}
                                     </span>
-                                    <span className="flex p-2 rounded-xl gap-2 text-[#8f8f8f] hover:bg-[#8f8f8f]/10 cursor-pointer">
-                                        <Heart />
+                                    <span
+                                        className={`flex p-2 rounded-xl gap-2 hover:bg-[#8f8f8f]/10 cursor-pointer ${blog.hasLiked ? 'text-red-500' : 'text-[#8f8f8f]'}`}
+                                        onClick={handleLike}
+                                    >
+                                        <Heart fill={blog.hasLiked ? "currentColor" : "none"} />
                                         {blog.likes || 0}
                                     </span>
                                 </div>

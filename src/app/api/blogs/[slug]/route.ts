@@ -1,5 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { formatRelativeTime, getBlogBySlug } from "@/utils/helpers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function GET(
     req: NextRequest,
@@ -13,6 +15,15 @@ export async function GET(
             return NextResponse.json({ message: "Blog not found" }, { status: 404 });
         }
 
+        const session = await getServerSession(authOptions);
+        console.log(`Fetching blog: ${slug}, User: ${session?.user?.id}`);
+        console.log(`likedBy from DB:`, blog.likedBy);
+
+        const hasLiked = session?.user?.id
+            ? blog.likedBy?.some((id: any) => id.toString() === session.user.id)
+            : false;
+        console.log(`Has Liked: ${hasLiked}`);
+
         const formatBlog = {
             id: blog._id.toString(),
             title: blog.title,
@@ -23,6 +34,7 @@ export async function GET(
             tags: blog.tags,
             published: blog.published,
             likes: blog.likes,
+            hasLiked,
             comments: blog.comments?.map((comment: any) => ({
                 content: comment.content,
                 author: {

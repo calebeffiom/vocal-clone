@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { connectToMongo } from "@/lib/mongoDB";
 import Blog from "@/models/blog-model";
 import User from "@/models/user-model";
@@ -165,4 +166,37 @@ const addComment = async (slug: string, authorId: string, content: string) => {
     }
 }
 
-export { generateSlug, getAllBlogs, formatRelativeTime, getBlogBySlug, getUserById, formatMonthYear, pinPost, unpinPost, addComment }
+const toggleLike = async (slug: string, userId: string, action: "like" | "unlike") => {
+    try {
+        await connectToMongo()
+        const blog = await Blog.findOne({ slug })
+        if (!blog) throw new Error("Blog not found")
+
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+
+        const hasLiked = blog.likedBy.some((id: any) => id.toString() === userId);
+
+        if (action === "like") {
+            if (!hasLiked) {
+                blog.likedBy.push(userObjectId);
+                blog.likes = (blog.likes || 0) + 1;
+            }
+        } else if (action === "unlike") {
+            if (hasLiked) {
+                blog.likedBy.pull(userObjectId);
+                blog.likes = Math.max(0, (blog.likes || 0) - 1);
+            }
+        }
+
+        blog.markModified('likedBy');
+        blog.markModified('likes');
+
+        const savedBlog = await blog.save();
+        return savedBlog;
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        throw error;
+    }
+}
+
+export { generateSlug, getAllBlogs, formatRelativeTime, getBlogBySlug, getUserById, formatMonthYear, pinPost, unpinPost, addComment, toggleLike }

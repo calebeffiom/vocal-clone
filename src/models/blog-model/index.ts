@@ -21,6 +21,7 @@ export interface Blog extends Document {
   tags: string[],
   published: boolean,
   likes: number,
+  likedBy: mongoose.Types.ObjectId[],
   comments: mongoose.Types.DocumentArray<typeof CommentSchema>
 }
 const BlogSchema = new Schema<Blog>(
@@ -34,9 +35,14 @@ const BlogSchema = new Schema<Blog>(
     tags: [String],
     published: { type: Boolean, default: false },
     likes: { type: Number, default: 0 },
+    likedBy: [{ type: mongoose.Types.ObjectId, ref: "User" }],
     comments: [CommentSchema]
   },
   { timestamps: true }
 );
+
+if (mongoose.models.Blog) {
+  delete mongoose.models.Blog;
+}
 
 export default mongoose.models.Blog || mongoose.model("Blog", BlogSchema);
