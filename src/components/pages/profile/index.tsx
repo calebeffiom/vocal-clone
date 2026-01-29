@@ -59,7 +59,7 @@ const ProfilePage = () => {
 
 
                             {/* Right Column - Sidebar */}
-                            <ProfileActions />
+                            <ProfileActions user={user} onSuccess={fetchUserProfile} />
                         </div>
                     </div>
                 </Container>

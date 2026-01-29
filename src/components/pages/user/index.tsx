@@ -14,7 +14,7 @@ const User = ({ username }: UserProps) => {
     const [loading, setLoading] = useState(true);
 
     const fetchUserProfile = useCallback(async () => {
-        setLoading(true);
+        if (!user) setLoading(true);
         try {
             const res = await axios.get(`/api/user/${username}`);
             if (res.data.formatedUser) {

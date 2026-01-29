@@ -25,3 +25,9 @@ export const blogsAtom = atom<Blog[]>({
     key: "blogsAtom",
     default: [],
 });
+
+export const trendingBlogsAtom = atom<Blog[]>({
+    key: "trendingBlogsAtom",
+    default: [],
+});
+

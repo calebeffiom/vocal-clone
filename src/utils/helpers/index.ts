@@ -89,6 +89,7 @@ const getUserById = async (id: string) => {
                 options: { sort: { createdAt: -1 } }
             })
             .populate('pinnedStories')
+            .populate('bookmarks')
             .lean()
         return user
     } catch (error) {
@@ -220,4 +221,82 @@ const getUserByUsername = async (username: string) => {
     }
 }
 
-export { generateSlug, getAllBlogs, formatRelativeTime, getBlogBySlug, getUserById, formatMonthYear, pinPost, unpinPost, addComment, toggleLike, getUserByUsername }
+const getTrendingBlogs = async () => {
+    try {
+        await connectToMongo()
+
+        const blogs = await Blog.aggregate([
+            { $match: { published: true } },
+            {
+                $addFields: {
+                    commentCount: { $size: { $ifNull: ["$comments", []] } }
+                }
+            },
+            {
+                $addFields: {
+                    popularityScore: { $add: [{ $ifNull: ["$likes", 0] }, "$commentCount"] }
+                }
+            },
+            { $sort: { popularityScore: -1, createdAt: -1 } },
+            { $limit: 10 }
+        ]);
+
+        const populatedBlogs = await Blog.populate(blogs, { path: 'author' });
+
+        return populatedBlogs
+    } catch (error) {
+        console.error('Error fetching trending blogs:', error)
+        throw error
+    }
+}
+
+const updateUserProfile = async (userId: string, data: any) => {
+    try {
+        await connectToMongo()
+        const user = await User.findByIdAndUpdate(userId, data, { new: true })
+        if (!user) throw new Error("User not found")
+        return user
+    } catch (error) {
+        console.error('Error updating user profile', error)
+        throw error
+    }
+}
+
+const bookmarkBlog = async (userId: string, blogId: string) => {
+    try {
+        await connectToMongo()
+        const user = await User.findById(userId)
+        if (!user) throw new Error("User not found")
+
+        if (user.bookmarks.includes(blogId)) {
+            return user; // Already bookmarked
+        }
+
+        user.bookmarks.push(blogId)
+        await user.save()
+        return user
+    } catch (error) {
+        console.error('Error bookmarking blog', error)
+        throw error
+    }
+}
+
+const unbookmarkBlog = async (userId: string, blogId: string) => {
+    try {
+        await connectToMongo()
+        const user = await User.findById(userId)
+        if (!user) throw new Error("User not found")
+
+        const blogIndex = user.bookmarks.indexOf(blogId)
+        if (blogIndex > -1) {
+            user.bookmarks.splice(blogIndex, 1)
+            await user.save()
+        }
+        return user
+    } catch (error) {
+        console.error('Error unbookmarking blog', error)
+        throw error
+    }
+}
+
+export { generateSlug, getAllBlogs, getTrendingBlogs, formatRelativeTime, getBlogBySlug, getUserById, formatMonthYear, pinPost, unpinPost, addComment, toggleLike, getUserByUsername, updateUserProfile, bookmarkBlog, unbookmarkBlog }

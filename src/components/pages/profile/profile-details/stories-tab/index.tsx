@@ -19,6 +19,7 @@ const StoriesTab = () => {
                         userName={user.name}
                         postTime={blog.createdAt}
                         catergory={blog.tags[0]}
+                        slug={blog.slug}
                     />
                 ))
             }

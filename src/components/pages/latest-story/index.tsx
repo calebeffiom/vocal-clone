@@ -46,6 +46,7 @@ const LatestStoriesSection = () => {
                             blogs.map((blog: any) => (
                                 <ArticlePreview
                                     key={blog.id}
+                                    id={blog.id}
                                     previewImage={blog.coverImage || "/images/ice.jpeg"}
                                     heading={blog.title}
                                     description={blog.content[0]}

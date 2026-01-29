@@ -5,8 +5,9 @@ import StoriesTab from "./stories-tab"
 import PinnedTab from "./pinned-tab"
 import DraftsTab from "./drafts-tab"
 import { useState } from "react"
+import BookmarkedTab from "./bookmark-tab"
 const ProfileDetails = () => {
-    const [activeTab, setActiveTab] = useState<"stories" | "pinned" | "drafts">("stories");
+    const [activeTab, setActiveTab] = useState<"stories" | "pinned" | "drafts" | "bookmarks">("stories");
     return (
         <div className="flex-1">
             {/* Profile Picture */}
@@ -41,6 +42,11 @@ const ProfileDetails = () => {
 
             {activeTab === "drafts" && (
                 <DraftsTab />
+            )}
+
+
+            {activeTab === "bookmarks" && (
+                <BookmarkedTab />
             )}
         </div>
     )

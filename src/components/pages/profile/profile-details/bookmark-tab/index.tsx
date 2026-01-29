@@ -1,14 +1,13 @@
-import UserArticle from "../user-article"
+import BookmarkedArticle from "../bookmarked-article"
 import { useRecoilValue } from "recoil"
 import { userAtom } from "@/utils/states/userAtom"
-
-const PinnedTab = () => {
+const BookmarkedTab = () => {
     const user = useRecoilValue(userAtom)
     return (
         <div className="stories-cont grid grid-cols-3 gap-[30px]">
             {
-                user?.pinnedStories.map((blog: any, index: number) => (
-                    <UserArticle
+                user?.bookmarks.map((blog: any, index: number) => (
+                    <BookmarkedArticle
                         key={index}
                         id={blog.id}
                         previewImage={blog.coverImage}
@@ -18,11 +17,10 @@ const PinnedTab = () => {
                         userName={user.name}
                         postTime={blog.createdAt}
                         catergory={blog.tags[0]}
-                        slug={blog.slug}
                     />
                 ))
             }
         </div>
     )
 }
-export default PinnedTab
+export default BookmarkedTab

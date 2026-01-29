@@ -18,7 +18,7 @@ const BlogPage = ({ slug }: BlogPageProps) => {
     const [showComments, setShowComments] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fetchBlog = useCallback(async () => {
-        setLoading(true);
+        if (!blog) setLoading(true);
         try {
             const res = await axios.get(`/api/blogs/${slug}`);
             if (res.data.formatBlog) {
@@ -29,7 +29,7 @@ const BlogPage = ({ slug }: BlogPageProps) => {
         } finally {
             setLoading(false);
         }
-    }, [slug]);
+    }, [slug, blog]);
 
     useEffect(() => {
         if (slug) {
@@ -122,14 +122,14 @@ const BlogPage = ({ slug }: BlogPageProps) => {
                     </div>
                 </Container>
 
-                <div className="w-[85%] h-[650px] mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="w-full lg:w-[1140px] mx-auto">
                     <img src={blog.coverImage || "/images/ice.jpeg"} className="h-full w-full rounded-xl object-cover" alt="Blog Cover" />
                 </div>
 
 
                 <Container>
-                    <div className="flex flex-col gap-8 w-[80%] mx-auto">
-                        <div className="flex flex-col gap-8 mx-auto">
+                    <div className="flex flex-col gap-8 w-full md:w-[900px] mx-auto">
+                        <div className="flex flex-col gap-8">
                             {blog.content.map((para: string, index: number) => (
                                 <p key={index} className="text-xl font-normal leading-loose text-gray-800">
                                     {para}

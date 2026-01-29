@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { getUserById, formatRelativeTime, formatMonthYear, pinPost, unpinPost } from "@/utils/helpers";
+import { Bookmark } from "lucide-react";
 
 export async function GET() {
     try {
@@ -19,6 +20,7 @@ export async function GET() {
                 { status: 404 }
             )
         }
+
         const formatedUser = {
             id: user._id.toString(),
             name: user.name,
@@ -37,6 +39,16 @@ export async function GET() {
             })) || [],
             coverPicture: user.coverPicture,
             blogsWritten: user.blogsWritten.map((blog: any) => ({
+                id: blog._id.toString(),
+                title: blog.title,
+                content: blog.content,
+                coverImage: blog.coverImage,
+                slug: blog.slug,
+                tags: blog.tags,
+                published: blog.published,
+                createdAt: formatRelativeTime(blog.createdAt.toISOString()),
+            })) || [],
+            bookmarks: user.bookmarks.map((blog: any) => ({
                 id: blog._id.toString(),
                 title: blog.title,
                 content: blog.content,
@@ -88,6 +100,7 @@ export async function PUT(request: Request) {
         );
     }
 }
+
 
 export async function DELETE(request: Request) {
     try {

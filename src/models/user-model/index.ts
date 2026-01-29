@@ -10,7 +10,8 @@ export interface IUser extends Document {
   coverPicture: string;
   bio: string;
   blogsWritten: mongoose.Schema.Types.ObjectId[];
-  pinnedStories: mongoose.Schema.Types.ObjectId[]
+  pinnedStories: mongoose.Schema.Types.ObjectId[];
+  bookmarks: mongoose.Schema.Types.ObjectId[];
   blogsCount: number;
   dateJoined: Date;
 }
@@ -25,8 +26,8 @@ const UserSchema = new Schema<IUser>(
     coverPicture: { type: String, default: "black" },
     bio: { type: String, default: "Nothing to see here yet" },
     blogsWritten: [{ type: mongoose.Schema.Types.ObjectId, ref: "Blog" }],
-    pinnedStories: [{ type: mongoose.Schema.Types.ObjectId, ref: "Blog" }]
-
+    pinnedStories: [{ type: mongoose.Schema.Types.ObjectId, ref: "Blog" }],
+    bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Blog" }],
   },
   {
     timestamps: true,

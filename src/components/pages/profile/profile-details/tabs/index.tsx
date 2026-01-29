@@ -28,6 +28,12 @@ const ActiveTabs = ({ changeTab, activeTab }: PropTypes) => {
                 >
                     Drafts
                 </button>
+                <button
+                    onClick={() => changeTab("bookmarks")}
+                    className={`pb-4 px-1 font-medium text-sm ${activeTab === "bookmarks" ? "border-b-2 border-gray-800 text-gray-800" : "text-gray-500 hover:text-gray-700"} cursor-pointer whitespace-nowrap !rounded-button`}
+                >
+                    Bookmarks
+                </button>
             </nav>
         </div>
     )

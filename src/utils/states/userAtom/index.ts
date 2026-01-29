@@ -18,6 +18,7 @@ interface User {
     bio: string;
     username: string;
     pinnedStories: Blog[] | [];
+    bookmarks: Blog[] | [];
     coverPicture: string;
     createdAt: string;
 }
