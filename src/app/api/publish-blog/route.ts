@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import cloudinary from "@/lib/cloudinaryConfig";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
-import { formatRelativeTime, generateSlug, getAllBlogs } from "@/utils/helpers";
+import { formatRelativeTime, generateSlug, getAllBlogs, extractPublicId } from "@/utils/helpers";
 import User from "@/models/user-model";
 // import { Collection } from "mongodb";
 export async function POST(req: NextRequest) {
@@ -102,6 +102,82 @@ export async function POST(req: NextRequest) {
 }
 
 
+
+export async function PUT(req: NextRequest) {
+  const res = NextResponse;
+  let mongoSession: mongoose.ClientSession | null = null;
+
+  try {
+    const reqBody = await req.json();
+    const { id, title, subtitle, paragraphs, coverImage, tags } = reqBody;
+
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return res.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    await connectToMongo();
+
+    const blog = await Blog.findById(id);
+
+    if (!blog) {
+      return res.json({ message: "Blog not found" }, { status: 404 });
+    }
+
+    if (blog.author.toString() !== session.user.id) {
+      return res.json({ message: "Unauthorized" }, { status: 403 });
+    }
+
+    let coverImageUrl = coverImage;
+
+    // Handle image update
+    if (coverImage.startsWith("data:")) {
+      // Upload new image
+      const uploadedImage = await cloudinary.uploader.upload(coverImage, {
+        folder: "blog-images",
+      });
+      coverImageUrl = uploadedImage.secure_url;
+
+      // Delete old image if it exists and is from cloudinary
+      if (blog.coverImage && blog.coverImage.includes("cloudinary")) {
+        const publicId = extractPublicId(blog.coverImage);
+        if (publicId) {
+          await cloudinary.uploader.destroy(publicId);
+        }
+      }
+    }
+
+    // Update fields
+    blog.title = title;
+    blog.subtitle = subtitle;
+    blog.content = paragraphs;
+    blog.coverImage = coverImageUrl;
+    // Check if tags is array, split if string?
+    // create-story sends array (text.tags is array in my code?)
+    // In create-story, text.tags is string[], but input handling splits it.
+    blog.tags = tags;
+    blog.published = true; // Set to published
+
+    if (blog.title !== title) {
+      blog.slug = generateSlug(title);
+    }
+
+    // Handle explicit session? save() uses default usually, but we are not in transaction here unless we start one.
+    // POST used transaction. Should we?
+    // Single document update is atomic in Mongo. Transaction needed if updating multiple docs (like User).
+    // POST updated User.blogsWritten.
+    // PUT just updates existing blog. User.blogsWritten already has the ID.
+    // So no transaction needed for single doc update.
+    await blog.save();
+
+    return res.json({ message: "Blog published successfully" }, { status: 200 });
+
+  } catch (error) {
+    console.error("Error updating blog:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
 
 export async function GET() {
   try {

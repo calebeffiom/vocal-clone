@@ -299,4 +299,12 @@ const unbookmarkBlog = async (userId: string, blogId: string) => {
     }
 }
 
-export { generateSlug, getAllBlogs, getTrendingBlogs, formatRelativeTime, getBlogBySlug, getUserById, formatMonthYear, pinPost, unpinPost, addComment, toggleLike, getUserByUsername, updateUserProfile, bookmarkBlog, unbookmarkBlog }
+const extractPublicId = (url: string) => {
+    const parts = url.split('/');
+    const lastPart = parts[parts.length - 1];
+    const publicIdWithExtension = lastPart.split('.')[0];
+    const folder = parts[parts.length - 2];
+    return `${folder}/${publicIdWithExtension}`;
+};
+
+export { generateSlug, getAllBlogs, getTrendingBlogs, formatRelativeTime, getBlogBySlug, getUserById, formatMonthYear, pinPost, unpinPost, addComment, toggleLike, getUserByUsername, updateUserProfile, bookmarkBlog, unbookmarkBlog, extractPublicId }

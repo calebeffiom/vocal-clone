@@ -5,6 +5,7 @@ interface Blog {
     title: string;
     content: string[];
     coverImage: string;
+    subtitle?: string;
     slug: string;
     tags: string[];
     published: boolean;

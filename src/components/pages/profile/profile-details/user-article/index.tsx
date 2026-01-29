@@ -74,7 +74,7 @@ const UserArticle = ({
                 <div
                     onClick={
                         () => {
-                            user?.blogsWritten.filter((draft: any) => draft.published === true).some((draft: any) => draft.id === id) ? router.push(`/blog/${slug}`) : router.push(`/create-story`)
+                            user?.blogsWritten.filter((draft: any) => draft.published === true).some((draft: any) => draft.id === id) ? router.push(`/blog/${slug}`) : router.push(`/create-story?id=${id}`)
                         }
                     }
                     className="cursor-pointer"

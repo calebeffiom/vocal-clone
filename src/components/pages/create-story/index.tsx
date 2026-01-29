@@ -1,8 +1,10 @@
-"use client"
-import { useRef, useState, ChangeEvent, useCallback, TextareaHTMLAttributes } from "react";
+import { useRef, useState, ChangeEvent, useCallback, TextareaHTMLAttributes, useEffect } from "react";
 import { Container } from "@shared";
 import { Plus, X, Image as ImageIcon, Upload } from "lucide-react";
 import axios from "axios";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "@/utils/states/userAtom";
 
 /**
  * Defines the structure for the story text state.
@@ -27,6 +29,29 @@ const CreateStory = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const paragraphRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
     const [formError, setFormError] = useState<string | "">("")
+
+    // Draft handling
+    const searchParams = useSearchParams()
+    const draftId = searchParams.get('id')
+    const user = useRecoilValue(userAtom)
+    const router = useRouter()
+
+    useEffect(() => {
+        if (draftId && user) {
+            const draft = user.blogsWritten.find((b: any) => b.id === draftId || b._id === draftId)
+            if (draft) {
+                setText({
+                    title: draft.title,
+                    subtitle: draft.subtitle || "",
+                    paragraphs: draft.content,
+                    coverImage: draft.coverImage,
+                    tags: draft.tags
+                })
+                setImagePreview(draft.coverImage)
+            }
+        }
+    }, [draftId, user])
+
     // Refs for title and subtitle
     const titleRef = useRef<HTMLTextAreaElement>(null);
     const subtitleRef = useRef<HTMLTextAreaElement>(null);
@@ -155,8 +180,22 @@ const CreateStory = () => {
         if (text.tags.length < 1) setFormError("Add at least one tag");
         console.log(formError)
         try {
-            const req = await axios.post("/api/publish-blog", text)
-            console.log(req.data.message)
+            if (draftId) {
+                // Update draft and publish
+                const req = await axios.put("/api/publish-blog", { ...text, id: draftId })
+                console.log(req.data.message)
+                if (req.status === 200) {
+                    router.push('/');
+                }
+            } else {
+                // Publish new
+                const req = await axios.post("/api/publish-blog", text)
+                console.log(req.data.message)
+                if (req.status === 201) {
+                    router.push('/');
+                }
+            }
+
         } catch (error) {
             console.log(error)
         }
