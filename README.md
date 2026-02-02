@@ -1,4 +1,4 @@
-# Medium Clone
+# Vocal Media Clone
 
 A full-stack blogging platform inspired by Vocal Media, built with Next.js 14.
 
