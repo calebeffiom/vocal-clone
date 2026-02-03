@@ -32,18 +32,24 @@ export const authOptions: NextAuthOptions = {
                 try {
                     await connectToMongo();
                     // Check if user exists in our custom Users collection
-                    const existingUser = await User.findOne({ email: user.email });
+                    let existingUser: any = await User.findOne({ email: user.email });
 
                     if (!existingUser) {
                         // Create new user in our custom Users collection
-                        const newUser = await User.create({
+                        existingUser = await User.create({
                             name: user.name || "Anonymous",
                             email: user.email,
                             image: user.image || "/images/profile.png",
                             username: user.email.split("@")[0] + "_" + Date.now(), // Generate unique username
                         });
-
                     }
+
+                    const hasTopics =
+                        Array.isArray(existingUser.favoriteTopics) &&
+                        existingUser.favoriteTopics.length > 0;
+
+                    // ✅ Only show onboarding on first sign in (no topics selected yet)
+                    return hasTopics ? "/latest-stories" : "/select-topics";
                 } catch (error) {
                     console.error("DEBUG: Error syncing user to custom collection:", error);
                     // Don't block sign-in if sync fails

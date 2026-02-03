@@ -5,6 +5,7 @@ import { useRecoilState } from "recoil"
 import { userAtom } from "@/utils/states/userAtom"
 import axios from "axios"
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 
 interface types {
     id: string,
@@ -31,6 +32,7 @@ const TopArticlePreview = ({
     slug
 }: types) => {
     const router = useRouter()
+    const { status } = useSession()
     const [user, setUser] = useRecoilState(userAtom)
     const [loading, setLoading] = useState(false)
 
@@ -38,10 +40,31 @@ const TopArticlePreview = ({
 
     const handleBookmark = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!user) return alert("Please login to bookmark");
+        if (status === "unauthenticated") {
+            const callbackUrl =
+                typeof window !== "undefined"
+                    ? window.location.pathname + window.location.search
+                    : "/latest-stories";
+            router.push(`/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+            return;
+        }
+
+        // Ensure we have the user profile loaded (Recoil) even if session is authenticated.
+        let currentUser = user;
+        if (!currentUser) {
+            const res = await axios.get("/api/user");
+            if (res.data.formatedUser) {
+                setUser(res.data.formatedUser);
+                currentUser = res.data.formatedUser;
+            }
+        }
+
+        if (!currentUser) return;
+
+        const currentlyBookmarked = currentUser?.bookmarks?.some((b: any) => b.id === id || b._id === id);
         setLoading(true);
         try {
-            if (isBookmarked) {
+            if (currentlyBookmarked) {
                 await axios.delete("/api/bookmark-blog", { data: { blogId: id } });
             } else {
                 await axios.post("/api/bookmark-blog", { blogId: id });
@@ -51,7 +74,15 @@ const TopArticlePreview = ({
             if (res.data.formatedUser) {
                 setUser(res.data.formatedUser);
             }
-        } catch (error) {
+        } catch (error: any) {
+            if (error?.response?.status === 401) {
+                const callbackUrl =
+                    typeof window !== "undefined"
+                        ? window.location.pathname + window.location.search
+                        : "/latest-stories";
+                router.push(`/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+                return;
+            }
             console.error("Error toggling bookmark:", error);
         } finally {
             setLoading(false);
@@ -82,9 +113,9 @@ const TopArticlePreview = ({
                         <img
                             src={profileImage}
                             alt=""
-                            loading="lazy"
+                            loading="eager"
                             decoding="async"
-                            className="h-[50px] rounded-full"
+                            className="h-[50px] w-[50px] rounded-full"
                         />
                     </div>
 

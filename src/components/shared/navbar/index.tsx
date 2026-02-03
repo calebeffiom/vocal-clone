@@ -31,6 +31,7 @@ const Navbar = () => {
                             <Link href="/profile" className="text-[#2E2E2E]">
                                 <img
                                     src={profileImage}
+                                    loading="eager"
                                     alt="Profile"
                                     className="h-9 w-9 rounded-full object-cover border border-gray-200"
                                 />

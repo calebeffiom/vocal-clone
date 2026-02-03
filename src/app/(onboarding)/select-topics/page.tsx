@@ -1,14 +1,38 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateFavoriteTopics } from "@/utils/helpers/frontendHelpers";
 import { Container } from "@shared";
 import { topicsList } from "@/utils/constants/topics";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
 const SelectTopicsPage = () => {
     const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { status } = useSession();
+
+    useEffect(() => {
+        const run = async () => {
+            if (status === "unauthenticated") {
+                router.replace("/signup?callbackUrl=/select-topics");
+                return;
+            }
+            if (status === "authenticated") {
+                try {
+                    const res = await axios.get("/api/user");
+                    const topics = res?.data?.formatedUser?.favoriteTopics || [];
+                    if (Array.isArray(topics) && topics.length > 0) {
+                        router.replace("/latest-stories");
+                    }
+                } catch {
+                    // If the profile fetch fails for any reason, keep onboarding accessible.
+                }
+            }
+        };
+        run();
+    }, [status, router]);
 
     const toggleTopic = (topic: string) => {
         if (selectedTopics.includes(topic)) {

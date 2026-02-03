@@ -28,7 +28,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
         const basBioChanged = bio !== user?.bio;
         const hasProfileChanged = profileImage !== user?.image;
         const hasCoverChanged = coverImage !== user?.coverPicture;
-        const hasTopicsChanged = JSON.stringify(favoriteTopics.sort()) !== JSON.stringify((user?.favoriteTopics || []).sort());
+        const hasTopicsChanged = user?.favoriteTopics || [];
         setIsChanged(hasNameChanged || basBioChanged || hasProfileChanged || hasCoverChanged || hasTopicsChanged);
     }, [name, bio, profileImage, coverImage, favoriteTopics, user]);
 
@@ -56,7 +56,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
             if (bio !== user?.bio) payload.bio = bio;
             if (profileImage !== user?.image) payload.image = profileImage;
             if (coverImage !== user?.coverPicture) payload.coverPicture = coverImage;
-            if (JSON.stringify(favoriteTopics.sort()) !== JSON.stringify((user?.favoriteTopics || []).sort())) payload.favoriteTopics = favoriteTopics;
+            if (favoriteTopics !== user?.favoriteTopics) payload.favoriteTopics = favoriteTopics;
 
             await axios.put("/api/user/edit-profile", payload);
             onSuccess();

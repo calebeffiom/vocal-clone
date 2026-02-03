@@ -27,6 +27,7 @@ export async function GET() {
             image: user.image,
             bio: user.bio,
             username: user.username,
+            favoriteTopics: user.favoriteTopics || [],
             pinnedStories: user.pinnedStories.map((blog: any) => ({
                 id: blog._id.toString(),
                 title: blog.title,

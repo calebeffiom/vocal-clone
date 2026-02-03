@@ -18,6 +18,7 @@ interface User {
     blogsWritten: Blog[] | [];
     bio: string;
     username: string;
+    favoriteTopics: string[];
     pinnedStories: Blog[] | [];
     bookmarks: Blog[] | [];
     coverPicture: string;

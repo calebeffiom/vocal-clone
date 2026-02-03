@@ -4,6 +4,7 @@ import { useRecoilState } from "recoil"
 import { userAtom } from "@/utils/states/userAtom"
 import axios from "axios"
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 
 interface types {
     id: string,
@@ -30,6 +31,7 @@ const ArticlePreview = ({
     slug
 }: types) => {
     const router = useRouter()
+    const { status } = useSession()
     const [user, setUser] = useRecoilState(userAtom)
     const [loading, setLoading] = useState(false)
 
@@ -37,7 +39,7 @@ const ArticlePreview = ({
 
     const handleBookmark = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!user) return alert("Please login to bookmark");
+        if (status !== "authenticated") return alert("Please login to bookmark");
         setLoading(true);
         try {
             if (isBookmarked) {
@@ -80,9 +82,9 @@ const ArticlePreview = ({
                         <img
                             src={profileImage}
                             alt=""
-                            loading="lazy"
+                            loading="eager"
                             decoding="async"
-                            className="h-[50px] rounded-full"
+                            className="h-[50px] w-[50px] rounded-full"
                         />
                     </div>
 
