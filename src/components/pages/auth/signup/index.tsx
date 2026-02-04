@@ -34,10 +34,10 @@ export default function SignupPage() {
 
 
   return (
-    <div className="fixed top-0 h-[100vh] w-[100%] bg-gradient-to-br from-primary-50 via-white to-slate-100 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen w-full bg-gradient-to-br from-primary-50 via-white to-slate-100 grid place-items-center px-0 sm:px-4">
+      <div className="w-full max-w-md">
 
-        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+        <div className="bg-white p-8 rounded-none sm:rounded-xl shadow-sm border border-slate-100">
           <button
             className="w-full flex items-center justify-center space-x-2 mb-6 bg-[#2E2E2E] text-white p-3 rounded-xl"
             onClick={handleSignIn}
