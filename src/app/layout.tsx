@@ -9,9 +9,6 @@ export const metadata: Metadata = {
   title: 'Ink Labs - Read, Write and Create Stories',
   applicationName: 'Ink Labs',
   description: 'A full‑stack blogging platform inspired by Vocal—read, write, publish, and discover stories.',
-  icons: {
-    icon: '/favicon.ico',
-  },
   openGraph: {
     title: 'Ink Labs - Read, Write and Create Stories',
     description: 'Ink Labs is a full‑stack blogging platform inspired by Vocal—read, write, publish, and discover stories.',
