@@ -5,7 +5,7 @@ import { userAtom } from "@/utils/states/userAtom"
 import axios from "axios"
 import { useState } from "react"
 import { useSession } from "next-auth/react"
-import toast from "react-hot-toast"
+import { debouncedToast } from "@/utils/toast"
 
 interface types {
     id: string,
@@ -40,15 +40,15 @@ const ArticlePreview = ({
 
     const handleBookmark = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (status !== "authenticated") return toast.error("Please login to bookmark");
+        if (status !== "authenticated") return debouncedToast.error("Please login to bookmark");
         setLoading(true);
         try {
             if (isBookmarked) {
                 await axios.delete("/api/bookmark-blog", { data: { blogId: id } });
-                toast.success("Bookmark removed");
+                debouncedToast.success("Bookmark removed");
             } else {
                 await axios.post("/api/bookmark-blog", { blogId: id });
-                toast.success("Bookmark added");
+                debouncedToast.success("Bookmark added");
             }
             // Refetch user to update bookmarks list
             const res = await axios.get("/api/user");
@@ -57,7 +57,7 @@ const ArticlePreview = ({
             }
         } catch (error) {
             console.error("Error toggling bookmark:", error);
-            toast.error("Failed to update bookmark");
+            debouncedToast.error("Failed to update bookmark");
         } finally {
             setLoading(false);
         }

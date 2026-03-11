@@ -9,7 +9,7 @@ import BlogSkeleton from "./blog-skeleton"
 import axios from "axios"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import toast from "react-hot-toast"
+import { debouncedToast } from "@/utils/toast"
 
 interface BlogPageProps {
     slug: string
@@ -79,11 +79,11 @@ const BlogPage = ({ slug }: BlogPageProps) => {
             const res = await axios.post(`/api/blogs/${slug}/blog-actions`, { content, action: "comment" });
             // For now, let's just simulate adding it or re-fetching
             console.log("Submitting comment:", content);
-            toast.success("Comment added successfully!");
+            debouncedToast.success("Comment added successfully!");
             await fetchBlog(); // Re-fetch to see new comments if any
         } catch (error) {
             console.error("Error submitting comment:", error);
-            toast.error("Failed to submit comment. Please try again.");
+            debouncedToast.error("Failed to submit comment. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -104,7 +104,7 @@ const BlogPage = ({ slug }: BlogPageProps) => {
         } else {
             // Fallback
             navigator.clipboard.writeText(window.location.href);
-            toast.success("Link copied instead");
+            debouncedToast.success("Link copied instead");
         }
     };
 

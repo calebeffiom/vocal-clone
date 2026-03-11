@@ -44,7 +44,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-          <Toaster position="bottom-right" />
+          <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
           {children}
         </AuthProvider>
       </body>

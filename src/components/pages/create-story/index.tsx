@@ -7,7 +7,7 @@ import { useRecoilValue } from "recoil";
 import { userAtom } from "@/utils/states/userAtom";
 import { topicsList } from "@/utils/constants/topics";
 import { useSession } from "next-auth/react";
-import toast from "react-hot-toast";
+import { debouncedToast } from "@/utils/toast";
 
 /**
  * Defines the structure for the story text state.
@@ -195,7 +195,7 @@ const CreateStory = () => {
                 const req = await axios.put("/api/publish-blog", { ...text, id: draftId })
                 console.log(req.data.message)
                 if (req.status === 200) {
-                    toast.success("Story published successfully!");
+                    debouncedToast.success("Story published successfully!");
                     router.push('/latest-stories');
                 }
             } else {
@@ -203,14 +203,14 @@ const CreateStory = () => {
                 const req = await axios.post("/api/publish-blog", text)
                 console.log(req.data.message)
                 if (req.status === 201) {
-                    toast.success("Story published successfully!");
+                    debouncedToast.success("Story published successfully!");
                     router.push('/latest-stories');
                 }
             }
 
         } catch (error) {
             console.log(error)
-            toast.error("Failed to publish story. Please try again.");
+            debouncedToast.error("Failed to publish story. Please try again.");
         }
     }
 
@@ -225,10 +225,10 @@ const CreateStory = () => {
         try {
             const req = await axios.post("/api/draft-blog", text)
             console.log(req.data.message)
-            toast.success("Draft saved successfully!");
+            debouncedToast.success("Draft saved successfully!");
         } catch (error) {
             console.log(error)
-            toast.error("Failed to save draft.");
+            debouncedToast.error("Failed to save draft.");
         }
     }
 
