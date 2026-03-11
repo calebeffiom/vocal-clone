@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Share2, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import EditProfileModal from "@/components/modals/EditProfileModal";
 
 interface ProfileActionsProps {
@@ -10,6 +11,32 @@ interface ProfileActionsProps {
 
 const ProfileActions: React.FC<ProfileActionsProps> = ({ user, onSuccess }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [shareCopied, setShareCopied] = useState(false);
+
+    const handleShareProfile = async () => {
+        const url = typeof window !== "undefined"
+            ? `${window.location.origin}/user/${user?.username}`
+            : "";
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: `${user?.name} on Vocal Clone`,
+                    url,
+                    text: `Check out ${user?.name}'s profile on Vocal Clone`,
+                });
+            } else {
+                await navigator.clipboard.writeText(url);
+                setShareCopied(true);
+                setTimeout(() => setShareCopied(false), 2000);
+            }
+        } catch (err) {
+            if ((err as Error).name !== "AbortError") {
+                await navigator.clipboard.writeText(url);
+                setShareCopied(true);
+                setTimeout(() => setShareCopied(false), 2000);
+            }
+        }
+    };
 
     return (
         <>
@@ -27,6 +54,20 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({ user, onSuccess }) => {
                         className="w-full bg-white border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded hover:bg-gray-50 cursor-pointer whitespace-nowrap !rounded-button transition-colors"
                     >
                         Edit Profile
+                    </button>
+                    <button
+                        onClick={handleShareProfile}
+                        className="w-full mt-3 flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded hover:bg-gray-50 cursor-pointer whitespace-nowrap !rounded-button transition-colors"
+                    >
+                        <Share2 className="w-4 h-4" />
+                        {shareCopied ? "Copied!" : "Share Profile"}
+                    </button>
+                    <button
+                        onClick={() => signOut({ callbackUrl: "/" })}
+                        className="w-full mt-3 flex items-center justify-center gap-2 bg-white border border-red-200 text-red-600 font-medium py-2 px-4 rounded hover:bg-red-50 cursor-pointer whitespace-nowrap !rounded-button transition-colors"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        Logout
                     </button>
                 </div>
 

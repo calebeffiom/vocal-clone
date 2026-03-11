@@ -31,7 +31,7 @@ const UserArticle = ({
     const router = useRouter();
     return (
         <div className="story-flex-cont h-[450px] relative">
-            <div onClick={() => router.push(`/blog/${slug}`)}>
+            <div className="cursor-pointer" onClick={() => router.push(`/blog/${slug}`)}>
                 <img
                     src={previewImage}
                     alt=""

@@ -124,7 +124,7 @@ const BlogPage = ({ slug }: BlogPageProps) => {
         <section>
             <div className="flex flex-col gap-8 md:gap-11 py-10 md:py-[100px]">
                 <Container>
-                    <div className="flex flex-col gap-4 w-full max-w-3xl mx-auto px-1">
+                    <div className="flex flex-col gap-4 w-full items-center max-w-3xl mx-auto px-1">
                         <div className="flex flex-col gap-2">
                             <h1 className="text-3xl sm:text-4xl md:text-[50px] font-bold leading-tight">{blog.title}</h1>
                             {blog.subtitle && (

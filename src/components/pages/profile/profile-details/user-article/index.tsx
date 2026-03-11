@@ -68,7 +68,7 @@ const UserArticle = ({
     };
 
     return (
-        <div className="story-flex-cont h-[450px] relative mb-6">
+        <div className="story-flex-cont h-[500px] lg:h-[450px] relative mb-6">
             <div>
                 <div
                     onClick={
@@ -83,7 +83,7 @@ const UserArticle = ({
                         alt=""
                         loading="lazy"
                         decoding="async"
-                        className="rounded-[10px] mb-[15px] w-[100%] h-[200px] object-cover "
+                        className="rounded-[10px] mb-[15px] w-[100%] object-cover md:object-fill h-[250px] lg:h-[230px] xl:h-[200px]"
                     />
                     <h2 className="text-[25px] mb-[15px] line-clamp-2">{heading}</h2>
                     <p className="text-[17px] w-full line-clamp-3">{Array.isArray(description) ? description[0] : description}</p>

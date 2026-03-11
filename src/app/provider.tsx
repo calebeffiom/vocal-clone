@@ -1,5 +1,4 @@
 "use client"; // This component must be client-side
-
 import { SessionProvider } from "next-auth/react";
 import { RecoilRoot } from "recoil";
 import React from "react";

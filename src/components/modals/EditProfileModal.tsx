@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X, Camera, Image as ImageIcon, Loader2 } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -73,65 +74,67 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+    const modalContent = (
+        <div className="fixed inset-0 z-[9999] flex items-start sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4 pt-6 sm:pt-4 overflow-y-auto overscroll-contain">
+            <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[calc(100vh-2rem)] flex flex-col shrink-0">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100 shrink-0">
                     <h2 className="text-xl font-semibold text-gray-900">Edit Profile</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation">
                         <X className="w-5 h-5 text-gray-500" />
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+                <div className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
                     {/* Cover Photo */}
                     <div className="relative group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Cover Photo</label>
-                        <div className="relative h-32 w-full bg-gray-100 rounded-xl overflow-hidden">
+                        <div className="relative h-28 sm:h-32 w-full bg-gray-100 rounded-xl overflow-hidden">
                             <img
                                 src={coverImage || "https://readdy.ai/api/search-image?query=Minimalist%20writing%20workspace%20with%20soft%20green%20plants%20in%20background%2C%20blurred%20aesthetic%2C%20calm%20and%20peaceful%20environment%2C%20natural%20light%2C%20inspiring%20creative%20space%20for%20writers%20and%20developers&width=1440&height=400&seq=banner1&orientation=landscape"}
                                 alt="Cover"
                                 className="w-full h-full object-cover"
                             />
-                            <button
-                                onClick={() => coverInputRef.current?.click()}
-                                className="absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                            <label
+                                className="absolute inset-0 flex items-center justify-center cursor-pointer touch-manipulation bg-black/30 sm:bg-black/20 sm:opacity-0 sm:hover:opacity-100 sm:hover:bg-black/40 transition-all"
+                                htmlFor="cover-input"
                             >
-                                <div className="bg-white/90 p-2 rounded-full shadow-lg">
+                                <div className="bg-white/90 p-2.5 rounded-full shadow-lg pointer-events-none">
                                     <ImageIcon className="w-5 h-5 text-gray-700" />
                                 </div>
-                            </button>
+                            </label>
+                            <input
+                                id="cover-input"
+                                type="file"
+                                ref={coverInputRef}
+                                onChange={(e) => handleImageChange(e, "cover")}
+                                className="hidden"
+                                accept="image/*"
+                            />
                         </div>
-                        <input
-                            type="file"
-                            ref={coverInputRef}
-                            onChange={(e) => handleImageChange(e, "cover")}
-                            className="hidden"
-                            accept="image/*"
-                        />
                     </div>
 
                     {/* Profile Photo */}
-                    <div className="relative -mt-16 flex justify-center">
+                    <div className="relative -mt-12 sm:-mt-16 flex justify-center">
                         <div className="relative group p-1 bg-white rounded-full">
-                            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100">
                                 <img
                                     src={profileImage || "/images/profile.png"}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                            <button
-                                onClick={() => profileInputRef.current?.click()}
-                                className="absolute inset-0 flex items-center justify-center transition-all"
+                            <label
+                                className="absolute inset-0 flex items-center justify-center cursor-pointer touch-manipulation rounded-full bg-black/30 sm:bg-transparent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                                htmlFor="profile-input"
                             >
-                                <div className="bg-black/40 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="bg-black/40 p-2 rounded-full pointer-events-none sm:opacity-0 sm:group-hover:opacity-100">
                                     <Camera className="w-5 h-5 text-white" />
                                 </div>
-                            </button>
+                            </label>
                             <input
+                                id="profile-input"
                                 type="file"
                                 ref={profileInputRef}
                                 onChange={(e) => handleImageChange(e, "profile")}
@@ -194,17 +197,17 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-gray-100 flex gap-3">
+                <div className="p-4 sm:p-6 border-t border-gray-100 flex gap-3 shrink-0">
                     <button
                         onClick={onClose}
-                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex-1 px-4 py-3 min-h-[44px] border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={!isChanged || loading}
-                        className="flex-1 px-4 py-2 bg-black text-white font-medium rounded-lg hover:bg-black/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                        className="flex-1 px-4 py-3 min-h-[44px] bg-black text-white font-medium rounded-lg hover:bg-black/90 active:bg-black/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 touch-manipulation"
                     >
                         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                         {loading ? "Saving..." : "Save Changes"}
@@ -213,6 +216,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
             </div>
         </div>
     );
+
+    if (typeof document === "undefined") return null;
+    return createPortal(modalContent, document.body);
 };
 
 export default EditProfileModal;

@@ -14,7 +14,7 @@ const ProfileSkeleton = () => {
                     <div className="w-full mx-auto px-6 -mt-16 relative z-10">
                         <div className="flex flex-col md:flex-row gap-8 items-start">
                             {/* Left Column - Profile Info Skeleton */}
-                            <div className="flex-1">
+                            <div className="w-full md:flex-1">
                                 <div className="mb-6 items-end">
                                     <Skeleton className="w-32 h-32 rounded-full border-4 border-white shadow-md" />
                                     <div className="ml-4 mt-[20px] pb-2">
