@@ -4,7 +4,7 @@ import Blog from "@/models/blog-model"
 import mongoose from "mongoose";
 import cloudinary from "@/lib/cloudinaryConfig";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import { formatRelativeTime, generateSlug, getAllBlogs, extractPublicId, getPersonalizedBlogs } from "@/utils/helpers";
 import User from "@/models/user-model";
 // import { Collection } from "mongodb";

@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { formatRelativeTime, getBlogBySlug } from "@/utils/helpers";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
 export async function GET(
     req: NextRequest,
