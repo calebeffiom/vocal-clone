@@ -2,7 +2,7 @@
 import Container from "../container"
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, TrendingUp, Clock, PenSquare, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "@/utils/states/userAtom";
@@ -84,32 +84,72 @@ const Navbar = () => {
                     </div>
 
                     {/* Mobile Menu + Backdrop (mounted for smooth transitions) */}
-                    <div className="md:hidden absolute left-0 top-full w-full">
+                    <div className="md:hidden absolute left-0 right-0 top-full">
                         {/* Backdrop */}
                         <div
                             onClick={() => setIsMenuOpen(false)}
-                            className={`fixed inset-0 bg-black/20 transition-opacity duration-200 ease-out ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                            className={`fixed inset-0 bg-black/30 backdrop-blur-[2px] transition-opacity duration-200 ease-out ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
                         />
 
                         {/* Panel */}
                         <div
-                            className={`w-full bg-white border-b border-gray-200 shadow-lg transition-all duration-200 ease-out origin-top ${isMenuOpen ? "opacity-100 translate-y-0 scale-y-100 pointer-events-auto" : "opacity-0 -translate-y-2 scale-y-95 pointer-events-none"}`}
+                            className={`relative mx-4 mt-2 rounded-2xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden transition-all duration-200 ease-out origin-top ${isMenuOpen ? "opacity-100 translate-y-0 scale-y-100 pointer-events-auto" : "opacity-0 -translate-y-2 scale-y-95 pointer-events-none"}`}
                         >
-                            <div className="py-6 px-4 flex flex-col gap-6">
-                                <ul className="flex flex-col gap-5 text-lg font-medium text-[#2E2E2E]">
-                                    <li><Link href="/trending-stories" onClick={toggleMenu}>Trending Stories</Link></li>
-                                    <li><Link href="/latest-stories" onClick={toggleMenu}>Latest Stories</Link></li>
-                                    {isLoggedIn === false && <li><Link href="/signup" onClick={toggleMenu}>Signin</Link></li>}
+                            {isLoggedIn && (
+                                <div className="flex items-center gap-3 px-5 py-4 bg-gray-50/80 border-b border-gray-100">
+                                    <img
+                                        src={profileImage}
+                                        alt="Profile"
+                                        className="h-11 w-11 rounded-full object-cover border-2 border-white shadow-sm"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-[#2E2E2E] truncate">{user?.name || session?.user?.name || "Profile"}</p>
+                                        <Link href="/profile" onClick={toggleMenu} className="text-sm text-gray-500 hover:text-[#2E2E2E]">
+                                            View profile
+                                        </Link>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="py-3 px-2">
+                                <ul className="flex flex-col">
                                     <li>
-                                        <Link
-                                            href={isLoggedIn ? "/create-story" : "/"}
-                                            onClick={toggleMenu}
-                                            className="inline-block bg-[#2E2E2E] text-white py-3 px-8 rounded-xl text-center w-full transition-transform duration-200 active:scale-[0.98]"
-                                        >
-                                            {isLoggedIn ? "Create Story" : "Get Started"}
+                                        <Link href="/trending-stories" onClick={toggleMenu} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[#2E2E2E] font-medium hover:bg-gray-100 active:bg-gray-100 transition-colors">
+                                            <TrendingUp className="w-5 h-5 text-gray-500" />
+                                            Trending Stories
                                         </Link>
                                     </li>
+                                    <li>
+                                        <Link href="/latest-stories" onClick={toggleMenu} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[#2E2E2E] font-medium hover:bg-gray-100 active:bg-gray-100 transition-colors">
+                                            <Clock className="w-5 h-5 text-gray-500" />
+                                            Latest Stories
+                                        </Link>
+                                    </li>
+                                    {isLoggedIn && (
+                                        <li>
+                                            <Link href="/profile" onClick={toggleMenu} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[#2E2E2E] font-medium hover:bg-gray-100 active:bg-gray-100 transition-colors">
+                                                <User className="w-5 h-5 text-gray-500" />
+                                                Profile
+                                            </Link>
+                                        </li>
+                                    )}
+                                    {!isLoggedIn && (
+                                        <li>
+                                            <Link href="/signup" onClick={toggleMenu} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[#2E2E2E] font-medium hover:bg-gray-100 active:bg-gray-100 transition-colors">
+                                                Signin
+                                            </Link>
+                                        </li>
+                                    )}
                                 </ul>
+                                <div className="mx-2 mt-2 pt-2 border-t border-gray-100">
+                                    <Link
+                                        href={isLoggedIn ? "/create-story" : "/"}
+                                        onClick={toggleMenu}
+                                        className="flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl bg-[#2E2E2E] text-white font-semibold hover:bg-[#404040] active:scale-[0.98] transition-all"
+                                    >
+                                        <PenSquare className="w-5 h-5" />
+                                        {isLoggedIn ? "Create Story" : "Get Started"}
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </div>
