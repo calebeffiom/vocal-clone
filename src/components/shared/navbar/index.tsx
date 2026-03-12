@@ -135,6 +135,7 @@ const Navbar = () => {
                                     {!isLoggedIn && (
                                         <li>
                                             <Link href="/signup" onClick={toggleMenu} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[#2E2E2E] font-medium hover:bg-gray-100 active:bg-gray-100 transition-colors">
+                                            <User className="w-5 h-5 text-gray-500" />
                                                 Signin
                                             </Link>
                                         </li>

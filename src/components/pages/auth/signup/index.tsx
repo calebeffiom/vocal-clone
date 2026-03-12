@@ -22,6 +22,7 @@ export default function SignupPage() {
       setIsLoading(true)
       await signIn('google', {
         callbackUrl: '/latest-stories',
+        prompt: 'select_account', // Force Google to show account picker
       })
     } catch (error) {
       console.log(error)

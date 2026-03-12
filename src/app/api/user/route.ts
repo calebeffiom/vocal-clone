@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { getUserById, formatRelativeTime, formatMonthYear, pinPost, unpinPost, updateUserProfile } from "@/utils/helpers";
-import { Bookmark } from "lucide-react";
 
 export async function GET() {
     try {
@@ -21,6 +20,10 @@ export async function GET() {
             )
         }
 
+        const pinnedStories = Array.isArray(user.pinnedStories) ? user.pinnedStories : [];
+        const blogsWritten = Array.isArray(user.blogsWritten) ? user.blogsWritten : [];
+        const bookmarks = Array.isArray(user.bookmarks) ? user.bookmarks : [];
+
         const formatedUser = {
             id: user._id.toString(),
             name: user.name,
@@ -28,7 +31,7 @@ export async function GET() {
             bio: user.bio,
             username: user.username,
             favoriteTopics: user.favoriteTopics || [],
-            pinnedStories: user.pinnedStories.map((blog: any) => ({
+            pinnedStories: pinnedStories.map((blog: any) => ({
                 id: blog._id.toString(),
                 title: blog.title,
                 content: blog.content,
@@ -38,8 +41,8 @@ export async function GET() {
                 published: blog.published,
                 createdAt: formatRelativeTime(blog.createdAt.toISOString()),
             })) || [],
-            coverPicture: user.coverPicture,
-            blogsWritten: user.blogsWritten.map((blog: any) => ({
+            coverPicture: user.coverPicture || "black",
+            blogsWritten: blogsWritten.map((blog: any) => ({
                 id: blog._id.toString(),
                 title: blog.title,
                 content: blog.content,
@@ -49,7 +52,7 @@ export async function GET() {
                 published: blog.published,
                 createdAt: formatRelativeTime(blog.createdAt.toISOString()),
             })) || [],
-            bookmarks: user.bookmarks.map((blog: any) => ({
+            bookmarks: bookmarks.map((blog: any) => ({
                 id: blog._id.toString(),
                 title: blog.title,
                 content: blog.content,
@@ -59,7 +62,7 @@ export async function GET() {
                 published: blog.published,
                 createdAt: formatRelativeTime(blog.createdAt.toISOString()),
             })) || [],
-            createdAt: formatMonthYear(user.createdAt.toISOString()),
+            createdAt: user.createdAt ? formatMonthYear(user.createdAt.toISOString()) : "",
         }
 
         return NextResponse.json({ formatedUser }, { status: 200 });

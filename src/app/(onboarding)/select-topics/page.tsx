@@ -15,6 +15,7 @@ const SelectTopicsPage = () => {
 
     useEffect(() => {
         const run = async () => {
+            if (status === "loading") return;
             if (status === "unauthenticated") {
                 router.replace("/signup?callbackUrl=/select-topics");
                 return;
@@ -33,6 +34,14 @@ const SelectTopicsPage = () => {
         };
         run();
     }, [status, router]);
+
+    if (status === "loading") {
+        return (
+            <section className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="animate-spin h-10 w-10 border-2 border-gray-300 border-t-[#2E2E2E] rounded-full" />
+            </section>
+        );
+    }
 
     const toggleTopic = (topic: string) => {
         if (selectedTopics.includes(topic)) {

@@ -18,7 +18,7 @@ const StoriesTab = ({ user }: StoriesTabProps) => {
                         profileImage={user.image}
                         userName={user.name}
                         postTime={blog.createdAt}
-                        category={blog.tags?.[0] || "General"}
+                        category={blog.tag}
                         slug={blog.slug}
                     />
                 ))

@@ -13,6 +13,7 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
+    
   // ✅ Add this
   cookies: {
     sessionToken: {
@@ -30,7 +31,7 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.CLIENT_ID || "",
             clientSecret: process.env.CLIENT_SECRET || "",
-            allowDangerousEmailAccountLinking: true,
+            allowDangerousEmailAccountLinking: false,
         }),
     ],
 
@@ -48,52 +49,14 @@ export const authOptions: NextAuthOptions = {
             return `${baseUrl}/latest-stories`;
         },
 
-        async signIn({ user, account }) {
-            // Sync OAuth user with custom Users collection
-            if (account?.provider === "google" && user.email) {
-                try {
-                    await connectToMongo();
-                    let existingUser: any = await User.findOne({ email: user.email });
-
-                    if (!existingUser) {
-                        // Create new user in our custom Users collection
-                        existingUser = await User.create({
-                            name: user.name || "Anonymous",
-                            email: user.email,
-                            image: user.image || "/images/profile.png",
-                            username: user.email.split("@")[0] + "_" + Date.now(),
-                        });
-                        // New user needs onboarding
-                        return "/select-topics";
-                    }
-
-                    // Existing user without topics still needs onboarding
-                    const hasTopics =
-                        Array.isArray(existingUser.favoriteTopics) &&
-                        existingUser.favoriteTopics.length > 0;
-                    if (!hasTopics) return "/select-topics";
-                } catch (error) {
-                    console.error("Error syncing user to custom collection:", error);
-                    // Don't block sign-in if sync fails
-                }
-            }
-            // Existing user with topics — allow sign-in, redirect handled by callbackUrl
+        async signIn() {
+            // Keep sign-in callback side-effect free.
             return true;
         },
 
-        async jwt({ token, user, account }) {
-            // On initial sign-in, fetch custom user data and attach to token
-            if (account && user) {
-                try {
-                    await connectToMongo();
-                    const customUser = await User.findOne({ email: user.email });
-                    if (customUser) {
-                        token.userId = customUser._id.toString();
-                    }
-                } catch (error) {
-                    console.error("Error in jwt callback:", error);
-                }
-            }
+        async jwt({ token }) {
+            // Always derive app user id from NextAuth subject.
+            if (token.sub) token.userId = token.sub;
             return token;
         },
 
@@ -106,11 +69,36 @@ export const authOptions: NextAuthOptions = {
         },
     },
 
+    events: {
+        async createUser({ user }) {
+            // Adapter creates the base user; add app-specific defaults after creation.
+            try {
+                await connectToMongo();
+                await User.findByIdAndUpdate(user.id, {
+                    $set: {
+                        username: user.email
+                            ? `${user.email.split("@")[0]}_${Date.now()}`
+                            : `user_${Date.now()}`,
+                        bio: "Nothing to see here yet",
+                        coverPicture: "black",
+                        favoriteTopics: [],
+                        blogsWritten: [],
+                        pinnedStories: [],
+                        bookmarks: [],
+                    },
+                });
+            } catch (error) {
+                console.error("Error initializing new user defaults:", error);
+            }
+        },
+    },
+
     // 5. Set a secret
     secret: process.env.NEXTAUTH_SECRET || "",
 
     // 6. Configure pages for App Router compatibility
     pages: {
         signIn: "/signup",
+        newUser: "/select-topics",
     },
 };
